@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   FileText, 
   Download, 
-  Cloud, 
+  Database, 
   Mail, 
   CheckCircle2, 
   XCircle, 
@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { InspectionReport } from '../types';
 import { generateInspectionPDF } from '../services/pdfService';
-import { uploadReportToGoogleDrive, sendReportEmail } from '../services/apiService';
+import { saveReportToDatabase, sendReportEmail } from '../services/apiService';
 
 interface ReportViewerModalProps {
   report: InspectionReport | null;
@@ -26,9 +26,9 @@ export const ReportViewerModal: React.FC<ReportViewerModalProps> = ({
   onClose,
   onReportUpdated,
 }) => {
-  const [isDriveSyncing, setIsDriveSyncing] = useState<boolean>(false);
+  const [isDbSyncing, setIsDbSyncing] = useState<boolean>(false);
   const [isEmailSending, setIsEmailSending] = useState<boolean>(false);
-  const [emailStatusMsg, setEmailStatusMsg] = useState<string>('');
+  const [statusMsg, setStatusMsg] = useState<string>('');
 
   if (!report) return null;
 
@@ -43,26 +43,29 @@ export const ReportViewerModal: React.FC<ReportViewerModalProps> = ({
     downloadAnchor.remove();
   };
 
-  // Sync to Google Drive
-  const handleSyncDrive = async () => {
-    setIsDriveSyncing(true);
+  // Sync to Database / Azure Cloud DB
+  const handleSaveToDatabase = async () => {
+    setIsDbSyncing(true);
+    setStatusMsg('');
     try {
       const pdfDataUrl = generateInspectionPDF(report);
-      const res = await uploadReportToGoogleDrive(report, pdfDataUrl);
+      const res = await saveReportToDatabase(report, pdfDataUrl);
 
-      if (res.success || res.fileUrl) {
+      if (res.success || res.dbRecordId) {
+        setStatusMsg('✅ Báo cáo đã được lưu vào CSDL (Sẵn sàng đồng bộ Azure Cloud).');
         const updated: InspectionReport = {
           ...report,
-          driveFileId: res.fileId,
-          driveFileUrl: res.fileUrl,
-          driveSyncedAt: res.syncedAt || new Date().toISOString(),
+          driveFileId: res.dbRecordId,
+          driveFileUrl: res.azureBlobUrl || '',
+          driveSyncedAt: res.savedAt || new Date().toISOString(),
         };
         onReportUpdated(updated);
       }
     } catch (err) {
       console.error(err);
+      setStatusMsg('⚠️ Lỗi lưu cơ sở dữ liệu.');
     } finally {
-      setIsDriveSyncing(false);
+      setIsDbSyncing(false);
     }
   };
 
@@ -126,12 +129,12 @@ export const ReportViewerModal: React.FC<ReportViewerModalProps> = ({
             </button>
 
             <button
-              onClick={handleSyncDrive}
-              disabled={isDriveSyncing}
-              className="flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition shadow-sm"
+              onClick={handleSaveToDatabase}
+              disabled={isDbSyncing}
+              className="flex items-center space-x-1.5 px-3.5 py-2 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg text-xs font-bold transition shadow-sm"
             >
-              <Cloud className={`w-4 h-4 ${isDriveSyncing ? 'animate-bounce' : ''}`} />
-              <span>{isDriveSyncing ? 'Đang Lưu...' : 'Lưu Vào Google Drive'}</span>
+              <Database className={`w-4 h-4 ${isDbSyncing ? 'animate-spin' : ''}`} />
+              <span>{isDbSyncing ? 'Đang Lưu...' : 'Lưu CSDL Azure'}</span>
             </button>
 
             <button
@@ -143,23 +146,11 @@ export const ReportViewerModal: React.FC<ReportViewerModalProps> = ({
               <span>{isEmailSending ? 'Đang Gửi Email...' : 'Gửi Email'}</span>
             </button>
           </div>
-
-          {report.driveFileUrl && (
-            <a
-              href={report.driveFileUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center space-x-1 text-xs font-bold text-emerald-700 hover:underline"
-            >
-              <span>Xem trên Google Drive</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
         </div>
 
-        {emailStatusMsg && (
-          <div className="p-3 bg-blue-50 border border-blue-200 text-blue-900 rounded-xl text-xs font-semibold">
-            {emailStatusMsg}
+        {statusMsg && (
+          <div className="p-3 bg-cyan-50 border border-cyan-200 text-cyan-900 rounded-xl text-xs font-semibold">
+            {statusMsg}
           </div>
         )}
 

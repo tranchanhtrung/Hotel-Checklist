@@ -1,6 +1,6 @@
 {
   "name": "Hotel Inspection & Quality Manager",
-  "description": "Ứng dụng kiểm tra tiêu chuẩn phòng ốc, đánh giá chất lượng dịch vụ khách sạn, quản lý tiến độ sửa chữa, tạo báo cáo PDF và lưu trữ Google Drive.",
+  "description": "Ứng dụng kiểm tra tiêu chuẩn phòng ốc, đánh giá chất lượng dịch vụ khách sạn, quản lý tiến độ sửa chữa, tạo báo cáo PDF và lưu trữ Cơ sở dữ liệu tương thích Azure Cloud.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -6,7 +6,7 @@ import {
   ListTodo, 
   BedDouble, 
   CalendarClock, 
-  CloudCheck, 
+  Database, 
   Mail, 
   Sparkles,
   Hotel
@@ -16,24 +16,24 @@ interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   openScheduleModal: () => void;
-  driveConnected: boolean;
+  azureDbConnected?: boolean;
   gmailConnected: boolean;
   aiConnected: boolean;
-  onSyncDrive?: () => void;
+  onSyncDb?: () => void;
   onSendGmail?: () => void;
-  isSyncingDrive?: boolean;
+  isSyncingDb?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   openScheduleModal,
-  driveConnected,
+  azureDbConnected = true,
   gmailConnected,
   aiConnected,
-  onSyncDrive,
+  onSyncDb,
   onSendGmail,
-  isSyncingDrive,
+  isSyncingDb,
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Tổng Quan', icon: LayoutDashboard },
@@ -98,19 +98,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline">Báo Cáo Định Kỳ</span>
             </button>
 
-            {/* Cloud Drive Integration Indicator / Action */}
+            {/* Azure Cloud Database Indicator / Action */}
             <button
-              onClick={onSyncDrive}
-              disabled={isSyncingDrive}
+              onClick={onSyncDb}
+              disabled={isSyncingDb}
               className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition cursor-pointer hover:opacity-90 active:scale-95 ${
-                driveConnected
-                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700 hover:bg-emerald-900/80'
+                azureDbConnected
+                  ? 'bg-blue-950/80 text-blue-300 border-blue-700 hover:bg-blue-900/80'
                   : 'bg-slate-800 text-slate-400 border-slate-700'
               }`}
-              title="Nhấn để kích hoạt đồng bộ báo cáo lên Google Drive"
+              title="Cơ Sở Dữ Liệu Azure Cloud Ready - Nhấn để đồng bộ dữ liệu"
             >
-              <CloudCheck className={`w-3.5 h-3.5 ${driveConnected ? 'text-emerald-400' : 'text-slate-500'} ${isSyncingDrive ? 'animate-bounce' : ''}`} />
-              <span className="hidden lg:inline">{isSyncingDrive ? 'Đang Lưu...' : 'Google Drive'}</span>
+              <Database className={`w-3.5 h-3.5 ${azureDbConnected ? 'text-cyan-400' : 'text-slate-500'} ${isSyncingDb ? 'animate-spin' : ''}`} />
+              <span className="hidden lg:inline">{isSyncingDb ? 'Đang Lưu DB...' : 'Azure DB'}</span>
             </button>
 
             {/* Gmail Integration Indicator / Action */}

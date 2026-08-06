@@ -3,7 +3,7 @@ import {
   ClipboardCheck, 
   Wrench, 
   TrendingUp, 
-  Cloud, 
+  Database, 
   Plus, 
   Eye, 
   FileDown, 
@@ -32,8 +32,8 @@ interface DashboardProps {
   onStartInspection: (roomId?: string) => void;
   onViewReport: (report: InspectionReport) => void;
   onGoToMaintenance: () => void;
-  onSyncAllDrive: () => void;
-  isSyncingDrive: boolean;
+  onSyncAllDb?: () => void;
+  isSyncingDb?: boolean;
 }
 
 interface SectorStats {
@@ -274,18 +274,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Metric 4 */}
         <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Google Drive Storage</span>
-            <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600">
-              <Cloud className="w-5 h-5" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Cơ Sở Dữ Liệu Azure</span>
+            <div className="p-2.5 rounded-lg bg-cyan-50 text-cyan-600">
+              <Database className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-3xl font-extrabold text-slate-900">{driveSyncedCount}</span>
-            <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-              Đã sao lưu
+            <span className="text-3xl font-extrabold text-slate-900">{reports.length}</span>
+            <span className="text-xs font-medium text-cyan-700 bg-cyan-100 px-2 py-0.5 rounded-full">
+              Sẵn Sàng Azure
             </span>
           </div>
-          <p className="mt-2 text-xs text-slate-500">Đảm bảo an toàn & xuất PDF</p>
+          <p className="mt-2 text-xs text-slate-500">Đã lưu cấu trúc SQL / Blob Storage</p>
         </div>
       </div>
 
@@ -536,7 +536,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-bold text-slate-900">Nhật Ký Kiểm Tra Gần Đây</h2>
-            <p className="text-xs text-slate-500">Danh sách báo cáo phòng đã thực hiện và trạng thái đồng bộ Google Drive</p>
+            <p className="text-xs text-slate-500">Danh sách báo cáo phòng đã thực hiện và trạng thái lưu trữ Cơ Sở Dữ Liệu Azure Cloud</p>
           </div>
 
           <button
@@ -558,7 +558,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <th className="py-3 px-4">Thời Gian</th>
                 <th className="py-3 px-4 text-center">Điểm Số</th>
                 <th className="py-3 px-4 text-center">Xếp Loại</th>
-                <th className="py-3 px-4 text-center">Google Drive</th>
+                <th className="py-3 px-4 text-center">Lưu CSDL Azure</th>
                 <th className="py-3 px-4 text-right">Thao Tác</th>
               </tr>
             </thead>
@@ -593,17 +593,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      {report.driveSyncedAt || report.driveFileId ? (
-                        <span className="inline-flex items-center space-x-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[11px] font-medium border border-emerald-200">
-                          <Cloud className="w-3 h-3" />
-                          <span>Đã lưu Drive</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center space-x-1 text-slate-400 bg-slate-100 px-2 py-0.5 rounded text-[11px] font-medium">
-                          <Clock className="w-3 h-3" />
-                          <span>Chưa đồng bộ</span>
-                        </span>
-                      )}
+                      <span className="inline-flex items-center space-x-1 text-cyan-700 bg-cyan-50 px-2.5 py-0.5 rounded text-[11px] font-semibold border border-cyan-200">
+                        <Database className="w-3 h-3 text-cyan-600" />
+                        <span>Đã lưu CSDL</span>
+                      </span>
                     </td>
                     <td className="py-3 px-4 text-right">
                       <button

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CalendarClock, Mail, Cloud, Check, Bell, Sparkles } from 'lucide-react';
+import { CalendarClock, Mail, Database, Check, Bell, Sparkles } from 'lucide-react';
 import { ScheduleConfig } from '../types';
 
 interface ScheduleModalProps {
@@ -36,7 +36,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
     };
 
     onSaveConfig(updated);
-    setSaveNotice('✅ Đã lưu cấu hình gửi báo cáo PDF & Google Drive định kỳ!');
+    setSaveNotice('✅ Đã lưu cấu hình gửi báo cáo PDF & Cơ sở dữ liệu Azure định kỳ!');
     setTimeout(() => {
       onClose();
     }, 1200);
@@ -51,8 +51,8 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
               <CalendarClock className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">Cấu Hình Gửi Báo Cáo PDF & Drive Định Kỳ</h2>
-              <p className="text-xs text-slate-500">Tự động tổng hợp báo cáo kiểm tra khách sạn gửi qua Email & Google Drive</p>
+              <h2 className="text-base font-bold text-slate-900">Cấu Hình Gửi Báo Cáo PDF & CSDL Azure Định Kỳ</h2>
+              <p className="text-xs text-slate-500">Tự động tổng hợp báo cáo kiểm tra khách sạn gửi qua Email & CSDL Azure Cloud</p>
             </div>
           </div>
 
@@ -129,7 +129,7 @@ export const ScheduleModal: React.FC<ScheduleModalProps> = ({
                   onChange={(e) => setAutoUploadDrive(e.target.checked)}
                   className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
                 />
-                <span>Tự động sao lưu Google Drive</span>
+                <span>Tự động sao lưu Cơ Sở Dữ Liệu Azure</span>
               </label>
             </div>
           </div>

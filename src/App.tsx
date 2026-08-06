@@ -24,7 +24,11 @@ import {
   ScheduleConfig 
 } from './types';
 
-import { uploadReportToGoogleDrive, sendReportEmail } from './services/apiService';
+import { 
+  saveReportToDatabase, 
+  syncAzureDatabase, 
+  sendReportEmail 
+} from './services/apiService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -59,11 +63,11 @@ export default function App() {
   const [selectedReportForView, setSelectedReportForView] = useState<InspectionReport | null>(null);
   const [inspectRoomId, setInspectRoomId] = useState<string | undefined>(undefined);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
-  const [isSyncingDrive, setIsSyncingDrive] = useState<boolean>(false);
+  const [isSyncingDb, setIsSyncingDb] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string>('');
 
   // System status flags
-  const [driveConnected, setDriveConnected] = useState<boolean>(true);
+  const [azureDbConnected, setAzureDbConnected] = useState<boolean>(true);
   const [gmailConnected, setGmailConnected] = useState<boolean>(true);
   const [aiConnected, setAiConnected] = useState<boolean>(true);
 
@@ -183,32 +187,31 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
-  // Sync all unsynced reports to Google Drive
-  const handleSyncAllDrive = async () => {
-    setIsSyncingDrive(true);
+  // Sync all reports to Database / Azure Cloud
+  const handleSyncDatabase = async () => {
+    setIsSyncingDb(true);
     let count = 0;
     try {
       for (const rep of reports) {
-        if (!rep.driveSyncedAt) {
-          const res = await uploadReportToGoogleDrive(rep);
-          if (res.success) {
-            count++;
-            setReports((prev) =>
-              prev.map((r) =>
-                r.id === rep.id
-                  ? { ...r, driveFileId: res.fileId, driveFileUrl: res.fileUrl, driveSyncedAt: new Date().toISOString() }
-                  : r
-              )
-            );
-          }
+        const res = await saveReportToDatabase(rep);
+        if (res.success) {
+          count++;
+          setReports((prev) =>
+            prev.map((r) =>
+              r.id === rep.id
+                ? { ...r, driveFileId: res.dbRecordId, driveSyncedAt: new Date().toISOString() }
+                : r
+            )
+          );
         }
       }
-      showToast(count > 0 ? `✅ Đã đồng bộ ${count} báo cáo lên Google Drive!` : '✅ Tất cả báo cáo đã được sao lưu Drive.');
+      await syncAzureDatabase();
+      showToast(count > 0 ? `✅ Đã lưu và đồng bộ ${count} báo cáo vào CSDL Azure!` : '✅ Cơ sở dữ liệu đã sẵn sàng Azure Cloud.');
     } catch (err) {
       console.error(err);
-      showToast('❌ Không thể kết nối Google Drive.');
+      showToast('❌ Không thể kết nối Cơ sở dữ liệu.');
     } finally {
-      setIsSyncingDrive(false);
+      setIsSyncingDb(false);
     }
   };
 
@@ -246,12 +249,12 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         openScheduleModal={() => setIsScheduleModalOpen(true)}
-        driveConnected={driveConnected}
+        azureDbConnected={azureDbConnected}
         gmailConnected={gmailConnected}
         aiConnected={aiConnected}
-        onSyncDrive={handleSyncAllDrive}
+        onSyncDb={handleSyncDatabase}
         onSendGmail={handleTriggerGmail}
-        isSyncingDrive={isSyncingDrive}
+        isSyncingDb={isSyncingDb}
       />
 
       {/* Main Content Area */}
@@ -264,8 +267,8 @@ export default function App() {
             onStartInspection={handleStartInspectionForRoom}
             onViewReport={(rep) => setSelectedReportForView(rep)}
             onGoToMaintenance={() => setActiveTab('maintenance')}
-            onSyncAllDrive={handleSyncAllDrive}
-            isSyncingDrive={isSyncingDrive}
+            onSyncAllDb={handleSyncDatabase}
+            isSyncingDb={isSyncingDb}
           />
         )}
 
