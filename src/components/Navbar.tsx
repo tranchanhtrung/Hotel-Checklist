@@ -19,6 +19,9 @@ interface NavbarProps {
   driveConnected: boolean;
   gmailConnected: boolean;
   aiConnected: boolean;
+  onSyncDrive?: () => void;
+  onSendGmail?: () => void;
+  isSyncingDrive?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,6 +31,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   driveConnected,
   gmailConnected,
   aiConnected,
+  onSyncDrive,
+  onSendGmail,
+  isSyncingDrive,
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Tổng Quan', icon: LayoutDashboard },
@@ -92,31 +98,34 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline">Báo Cáo Định Kỳ</span>
             </button>
 
-            {/* Cloud Drive Integration Indicator */}
-            <div
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded-md text-[11px] font-medium border ${
+            {/* Cloud Drive Integration Indicator / Action */}
+            <button
+              onClick={onSyncDrive}
+              disabled={isSyncingDrive}
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition cursor-pointer hover:opacity-90 active:scale-95 ${
                 driveConnected
-                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700 hover:bg-emerald-900/80'
                   : 'bg-slate-800 text-slate-400 border-slate-700'
               }`}
-              title="Trạng thái kết nối Google Drive Storage"
+              title="Nhấn để kích hoạt đồng bộ báo cáo lên Google Drive"
             >
-              <CloudCheck className={`w-3.5 h-3.5 ${driveConnected ? 'text-emerald-400' : 'text-slate-500'}`} />
-              <span className="hidden lg:inline">Google Drive</span>
-            </div>
+              <CloudCheck className={`w-3.5 h-3.5 ${driveConnected ? 'text-emerald-400' : 'text-slate-500'} ${isSyncingDrive ? 'animate-bounce' : ''}`} />
+              <span className="hidden lg:inline">{isSyncingDrive ? 'Đang Lưu...' : 'Google Drive'}</span>
+            </button>
 
-            {/* Gmail Integration Indicator */}
-            <div
-              className={`flex items-center space-x-1 px-2.5 py-1 rounded-md text-[11px] font-medium border ${
+            {/* Gmail Integration Indicator / Action */}
+            <button
+              onClick={onSendGmail}
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition cursor-pointer hover:opacity-90 active:scale-95 ${
                 gmailConnected
-                  ? 'bg-blue-950/60 text-blue-300 border-blue-800/60'
+                  ? 'bg-blue-950/80 text-blue-300 border-blue-700 hover:bg-blue-900/80'
                   : 'bg-slate-800 text-slate-400 border-slate-700'
               }`}
-              title="Trạng thái kết nối Gmail API"
+              title="Nhấn để kích hoạt gửi báo cáo qua Gmail"
             >
               <Mail className={`w-3.5 h-3.5 ${gmailConnected ? 'text-blue-400' : 'text-slate-500'}`} />
               <span className="hidden lg:inline">Gmail</span>
-            </div>
+            </button>
 
             {/* AI Gemini Status */}
             <div

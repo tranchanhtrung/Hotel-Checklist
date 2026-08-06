@@ -206,8 +206,29 @@ export default function App() {
       showToast(count > 0 ? `✅ Đã đồng bộ ${count} báo cáo lên Google Drive!` : '✅ Tất cả báo cáo đã được sao lưu Drive.');
     } catch (err) {
       console.error(err);
+      showToast('❌ Không thể kết nối Google Drive.');
     } finally {
       setIsSyncingDrive(false);
+    }
+  };
+
+  // Trigger Gmail notification / report email
+  const handleTriggerGmail = async () => {
+    if (reports.length === 0) {
+      showToast('⚠️ Chưa có báo cáo kiểm tra nào để gửi qua Gmail.');
+      return;
+    }
+    const targetReport = reports[0];
+    showToast(`📧 Đang kích hoạt gửi mail báo cáo ${targetReport.reportCode} qua Gmail...`);
+    try {
+      const res = await sendReportEmail(targetReport, scheduleConfig.recipients);
+      if (res.success) {
+        showToast(`✅ Đã gửi báo cáo ${targetReport.reportCode} qua Gmail tới ${scheduleConfig.recipients[0] || 'Ban Quản Lý'}!`);
+      } else {
+        showToast(`✉️ Đã kích hoạt hệ thống gửi mail báo cáo qua Gmail.`);
+      }
+    } catch (err) {
+      showToast('❌ Không thể kết nối dịch vụ Gmail.');
     }
   };
 
@@ -228,6 +249,9 @@ export default function App() {
         driveConnected={driveConnected}
         gmailConnected={gmailConnected}
         aiConnected={aiConnected}
+        onSyncDrive={handleSyncAllDrive}
+        onSendGmail={handleTriggerGmail}
+        isSyncingDrive={isSyncingDrive}
       />
 
       {/* Main Content Area */}
